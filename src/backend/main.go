@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/araddon/dateparse"
 )
 
 func main() {
@@ -39,17 +40,30 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(pageAmount)
 
-	// each page can contains 10 articles
-	titles := make([]string, 0, pageAmount*10)
+	// each page at most can contains 10 articles
+	articles := make([]article, 0, pageAmount*10)
 	for _, url := range urls {
 		go func(url string) {
 			doc, err := goquery.NewDocument(url)
 			if err != nil {
 				panic(err)
 			}
-			doc.Find("h2.article-title").Each(func(_ int, s *goquery.Selection) {
-				title := strings.TrimSpace(s.Text())
-				titles = append(titles, title)
+			doc.Find("div.article-summary-inner").Each(func(_ int, s *goquery.Selection) {
+				title := strings.TrimSpace(s.Find("h2.article-title").Text())
+
+				publishDate, err := dateparse.ParseAny(s.Find("time").Text())
+				if err != nil {
+					panic(err)
+				}
+
+				articlePrefix := "https://taobaofed.org"
+				articleRelativeURL, _ := s.Find("a").Attr("href")
+				articleFullURL := fmt.Sprintf("%s%s", articlePrefix, articleRelativeURL)
+
+				a := article{title: title, date: publishDate, author: "掏寶前端團隊", url: articleFullURL}
+				// a := types.Article{Date: publishDate}
+
+				articles = append(articles, a)
 			})
 			wg.Done()
 		}(url)
@@ -58,7 +72,7 @@ func main() {
 	wg.Wait()
 
 	// Print
-	for _, title := range titles {
-		fmt.Println(title)
+	for _, article := range articles {
+		fmt.Println(article)
 	}
 }

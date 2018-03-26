@@ -15,6 +15,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/araddon/dateparse"
+  packages = ["."]
+  revision = "1d3842569f46602b6885966f0b025c0a3d0d9442"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "html",
@@ -25,6 +31,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7745119b46373b54f1306929e4568adc686e659ef6339cf4be6eef085fc7e8ad"
+  inputs-digest = "f028262bc1a6802c93bf80ceb63b164a57e7cb278b05bc86d263597fac51b645"
   solver-name = "gps-cdcl"
   solver-version = 1
