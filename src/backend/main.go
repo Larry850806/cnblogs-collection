@@ -10,9 +10,8 @@ import (
 	"github.com/araddon/dateparse"
 )
 
-func main() {
-
-	// Get page amount
+func getTaobaofedArticles() []article {
+	// STEP 1: Get page amount
 	homePageURL := "https://taobaofed.org/categories/Node-js/"
 	doc, err := goquery.NewDocument(homePageURL)
 	if err != nil {
@@ -23,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	// Generate urls
+	// STEP 2: Generate urls
 	urls := make([]string, pageAmount)
 	for i := 1; i <= pageAmount; i++ {
 		var url string
@@ -33,10 +32,9 @@ func main() {
 			url = fmt.Sprintf("%spage/%d/", homePageURL, i)
 		}
 		urls[i-1] = url
-
 	}
 
-	// Get titles
+	// STEP 3: Get articles
 	var wg sync.WaitGroup
 	wg.Add(pageAmount)
 
@@ -70,9 +68,28 @@ func main() {
 	}
 
 	wg.Wait()
+	return articles
+}
+
+func main() {
+	tasks := []task{getTaobaofedArticles}
+
+	var wg sync.WaitGroup
+	wg.Add(len(tasks))
+
+	allArticles := make([]article, 0)
+	for _, t := range tasks {
+		go func(t task) {
+			articles := t()
+			allArticles = append(allArticles, articles...)
+			wg.Done()
+		}(t)
+	}
+
+	wg.Wait()
 
 	// Print
-	for _, article := range articles {
+	for _, article := range allArticles {
 		fmt.Println(article)
 	}
 }

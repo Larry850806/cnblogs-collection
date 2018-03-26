@@ -16,3 +16,5 @@ func (a article) String() string {
 	date := fmt.Sprintf("%d-%02d-%02d", a.date.Year(), int(a.date.Month()), a.date.Day())
 	return fmt.Sprintf("%s by %s - %s", date, a.author, a.title)
 }
+
+type task func() []article
