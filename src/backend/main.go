@@ -71,25 +71,63 @@ func getTaobaofedArticles() []article {
 	return articles
 }
 
+func getJerryQuArticles() {
+	url := "https://imququ.com/post/series.html"
+	doc, err := goquery.NewDocument(url)
+	if err != nil {
+		panic(err)
+	}
+
+	doc.Find(".entry-content > ul > li").Each(func(_ int, s *goquery.Selection) {
+		link := s.Find("a:not(:last-child)")
+
+		urlRelativePath, _ := link.Attr("href")
+		urlFullPath := fmt.Sprintf("%s%s", "https://imququ.com", urlRelativePath)
+
+		title := strings.TrimSpace(link.Text())
+
+		// fmt.Println(dateparse.ParseAny("dec 23, 2011"))
+		publishDate, err := dateparse.ParseAny(strings.Trim(s.Find("span.date").Text(), "()"))
+		if err != nil {
+			panic(err)
+		}
+
+		// publishDate, err := dateparse.ParseAny(s.Find("time").Text())
+
+		// articlePrefix := "https://taobaofed.org"
+		// articleRelativeURL, _ := s.Find("a").Attr("href")
+		// articleFullURL := fmt.Sprintf("%s%s", articlePrefix, articleRelativeURL)
+
+		// a := article{title: title, date: publishDate, author: "掏寶前端團隊", url: articleFullURL}
+		// // a := types.Article{Date: publishDate}
+
+		// articles = append(articles, a)
+		fmt.Println(title, urlFullPath, publishDate)
+	})
+
+	return
+}
+
 func main() {
-	tasks := []task{getTaobaofedArticles}
+	getJerryQuArticles()
+	// tasks := []task{getTaobaofedArticles}
 
-	var wg sync.WaitGroup
-	wg.Add(len(tasks))
+	// var wg sync.WaitGroup
+	// wg.Add(len(tasks))
 
-	allArticles := make([]article, 0)
-	for _, t := range tasks {
-		go func(t task) {
-			articles := t()
-			allArticles = append(allArticles, articles...)
-			wg.Done()
-		}(t)
-	}
+	// allArticles := make([]article, 0)
+	// for _, t := range tasks {
+	// 	go func(t task) {
+	// 		articles := t()
+	// 		allArticles = append(allArticles, articles...)
+	// 		wg.Done()
+	// 	}(t)
+	// }
 
-	wg.Wait()
+	// wg.Wait()
 
-	// Print
-	for _, article := range allArticles {
-		fmt.Println(article)
-	}
+	// // Print
+	// for _, article := range allArticles {
+	// 	fmt.Println(article)
+	// }
 }
