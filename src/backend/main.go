@@ -40,8 +40,10 @@ func getTaobaofedArticles() []article {
 
 	// each page at most can contains 10 articles
 	articles := make([]article, 0, pageAmount*10)
+	var mutex sync.Mutex
 	for _, url := range urls {
 		go func(url string) {
+			defer wg.Done()
 			doc, err := goquery.NewDocument(url)
 			if err != nil {
 				panic(err)
@@ -59,11 +61,11 @@ func getTaobaofedArticles() []article {
 				articleFullURL := fmt.Sprintf("%s%s", articlePrefix, articleRelativeURL)
 
 				a := article{title: title, date: publishDate, author: "掏寶前端團隊", url: articleFullURL}
-				// a := types.Article{Date: publishDate}
 
+				mutex.Lock()
 				articles = append(articles, a)
+				mutex.Unlock()
 			})
-			wg.Done()
 		}(url)
 	}
 
@@ -107,11 +109,14 @@ func main() {
 	wg.Add(len(tasks))
 
 	allArticles := make([]article, 0)
+	var mutex sync.Mutex
 	for _, t := range tasks {
 		go func(t task) {
+			defer wg.Done()
 			articles := t()
+			mutex.Lock()
 			allArticles = append(allArticles, articles...)
-			wg.Done()
+			mutex.Unlock()
 		}(t)
 	}
 
