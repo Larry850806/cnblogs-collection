@@ -13,43 +13,6 @@ services:
 
     # volumes:
     #   - "db-data:/data/db"
-  
-  # admin:
-  #   image: dpage/pgadmin4
-  #   restart: always
-  #   ports:
-  #     - 80:80
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: dev@dev.com
-  #     PGADMIN_DEFAULT_PASSWORD: dev
-
-  # web:
-  #   image: index.docker.io/tutorney/web
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   environment:
-  #     DB_HOST: db
-  #     REDIS_HOST: redis
-  #     NODE_ENV: production
-  #   volumes:
-  #     - "pems:/root/workspace/node_modules/ssl-root-cas/pems/"
-  #   restart: always
-
-  # redis:
-  #   image: redis:4-alpine
-  #   volumes:
-  #     - "redis-data:/data"
-  #   command: redis-server --appendonly yes
-
-  # watchtower:
-  #   image: v2tec/watchtower
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - /root/.docker/config.json:/config.json
-  #   command: --interval 1
 
 volumes:
   db-data:
-  # redis-data:
-  # pems:
