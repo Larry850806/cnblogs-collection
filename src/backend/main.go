@@ -102,8 +102,73 @@ func getJerryQuArticles() []article {
 	return articles
 }
 
+func getWuBoyArticles() []article {
+	// STEP 1: Get page amount
+	homePageURL := "https://blog.wu-boy.com/category/電腦技術/"
+	doc, err := goquery.NewDocument(homePageURL)
+	if err != nil {
+		panic(err)
+	}
+
+	doc.Find("span.meta-nav.screen-reader-text").Remove()
+	pageAmount, err := strconv.Atoi(doc.Find("nav > div > a:nth-child(4)").Text())
+	if err != nil {
+		panic(err)
+	}
+
+	// STEP 2: Generate urls
+	urls := make([]string, pageAmount)
+	for i := 1; i <= pageAmount; i++ {
+		var url string
+		if i == 1 {
+			url = homePageURL
+		} else {
+			url = fmt.Sprintf("%spage/%d/", homePageURL, i)
+		}
+		urls[i-1] = url
+	}
+
+	// STEP 3: Get articles
+	var wg sync.WaitGroup
+	wg.Add(pageAmount)
+
+	// each page at most can contains 8 articles
+	articles := make([]article, 0, pageAmount*8)
+	var mutex sync.Mutex
+	for _, url := range urls {
+		go func(url string) {
+			defer wg.Done()
+			doc, err := goquery.NewDocument(url)
+			if err != nil {
+				panic(err)
+			}
+			doc.Find("article").Each(func(_ int, s *goquery.Selection) {
+				titleElement := s.Find("h2.entry-title")
+
+				title := titleElement.Text()
+				articleURL, _ := titleElement.Find("a").Attr("href")
+
+				publishDate, err := dateparse.ParseAny(s.Find("span.posted-on time").First().Text())
+				if err != nil {
+					panic(err)
+				}
+
+				a := article{title: title, date: publishDate, author: "AppleBOY", url: articleURL}
+
+				mutex.Lock()
+				articles = append(articles, a)
+				mutex.Unlock()
+			})
+		}(url)
+	}
+
+	wg.Wait()
+	return articles
+}
+
 func main() {
-	tasks := []task{getTaobaofedArticles, getJerryQuArticles}
+	tasks := []task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
+	// tasks := []task{getWuBoyArticles}
 
 	var wg sync.WaitGroup
 	wg.Add(len(tasks))
@@ -126,4 +191,5 @@ func main() {
 	for _, article := range allArticles {
 		fmt.Println(article)
 	}
+	fmt.Println(len(allArticles))
 }
