@@ -71,13 +71,14 @@ func getTaobaofedArticles() []article {
 	return articles
 }
 
-func getJerryQuArticles() {
+func getJerryQuArticles() []article {
 	url := "https://imququ.com/post/series.html"
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		panic(err)
 	}
 
+	articles := make([]article, 0)
 	doc.Find(".entry-content > ul > li").Each(func(_ int, s *goquery.Selection) {
 		link := s.Find("a:not(:last-child)")
 
@@ -92,42 +93,32 @@ func getJerryQuArticles() {
 			panic(err)
 		}
 
-		// publishDate, err := dateparse.ParseAny(s.Find("time").Text())
-
-		// articlePrefix := "https://taobaofed.org"
-		// articleRelativeURL, _ := s.Find("a").Attr("href")
-		// articleFullURL := fmt.Sprintf("%s%s", articlePrefix, articleRelativeURL)
-
-		// a := article{title: title, date: publishDate, author: "掏寶前端團隊", url: articleFullURL}
-		// // a := types.Article{Date: publishDate}
-
-		// articles = append(articles, a)
-		fmt.Println(title, urlFullPath, publishDate)
+		a := article{title: title, date: publishDate, author: "Jerry Qu", url: urlFullPath}
+		articles = append(articles, a)
 	})
 
-	return
+	return articles
 }
 
 func main() {
-	getJerryQuArticles()
-	// tasks := []task{getTaobaofedArticles}
+	tasks := []task{getTaobaofedArticles, getJerryQuArticles}
 
-	// var wg sync.WaitGroup
-	// wg.Add(len(tasks))
+	var wg sync.WaitGroup
+	wg.Add(len(tasks))
 
-	// allArticles := make([]article, 0)
-	// for _, t := range tasks {
-	// 	go func(t task) {
-	// 		articles := t()
-	// 		allArticles = append(allArticles, articles...)
-	// 		wg.Done()
-	// 	}(t)
-	// }
+	allArticles := make([]article, 0)
+	for _, t := range tasks {
+		go func(t task) {
+			articles := t()
+			allArticles = append(allArticles, articles...)
+			wg.Done()
+		}(t)
+	}
 
-	// wg.Wait()
+	wg.Wait()
 
-	// // Print
-	// for _, article := range allArticles {
-	// 	fmt.Println(article)
-	// }
+	// Print
+	for _, article := range allArticles {
+		fmt.Println(article)
+	}
 }
