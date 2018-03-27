@@ -5,7 +5,7 @@ build-race:
 	go build -race
 
 run:
-	./backend
+	./main
 
 build-run: build run
 
