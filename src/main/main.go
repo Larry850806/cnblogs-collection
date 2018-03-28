@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"sync"
-	"time"
 
 	"database/sql"
 
 	_ "github.com/lib/pq"
 )
 
-func printAllArticles() {
+func getAllArticles() []article {
 	tasks := []task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
 
 	var wg sync.WaitGroup
@@ -30,11 +30,13 @@ func printAllArticles() {
 
 	wg.Wait()
 
-	// Print
-	for _, article := range allArticles {
-		fmt.Println(article)
-	}
 	fmt.Println(len(allArticles))
+
+	return allArticles
+}
+
+func escape(s string) string {
+	return strings.Replace(s, `'`, `''`, -1)
 }
 
 func main() {
@@ -45,19 +47,29 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-
 	fmt.Println(db)
 
-	sqlStatement := `
+	allArticles := getAllArticles()
+
+	values := make([]string, 0, len(allArticles))
+	for _, article := range allArticles {
+		date := fmt.Sprintf("%d-%d-%d", article.date.Year(), int(article.date.Month()), article.date.Day())
+		str := fmt.Sprintf(`('%s', '%s', '%s', '%s')`, escape(article.title), date, escape(article.url), article.author)
+		values = append(values, str)
+	}
+
+	sqlStatement := fmt.Sprintf(`
 		INSERT INTO article (title, date, url, author)
-		VALUES ($1, $2, $3, $4)
-	`
+		VALUES %s
+	`, strings.Join(values, ",\n"))
+
+	fmt.Println(sqlStatement)
 
 	stmt, err := db.Prepare(sqlStatement)
 	if err != nil {
 		panic(err)
 	}
-	res, err := stmt.Exec("標題", time.Now(), "https://url", "盧承億")
+	res, err := stmt.Exec()
 	if err != nil {
 		panic(err)
 	}
