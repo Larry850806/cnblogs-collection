@@ -1,24 +1,27 @@
 package main
 
 import (
+	"article"
 	"fmt"
 	"sort"
 	"sync"
+	"task"
 )
 
 func main() {
-	tasks := []task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
+	// tasks := []task.Task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
+	tasks := []task.Task{getTaobaofedArticles, getJerryQuArticles}
 
 	var wg sync.WaitGroup
 	wg.Add(len(tasks))
 
-	var allArticles articleList
+	var allArticles article.List
 
 	var mutex sync.Mutex
 	for _, t := range tasks {
-		go func(t task) {
+		go func(t task.Task) {
 			defer wg.Done()
-			articles := t()
+			articles := t.Run()
 			mutex.Lock()
 			allArticles = append(allArticles, articles...)
 			mutex.Unlock()

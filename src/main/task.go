@@ -1,6 +1,7 @@
 package main
 
 import (
+	"article"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,7 +11,7 @@ import (
 	"github.com/araddon/dateparse"
 )
 
-func getTaobaofedArticles() articleList {
+func getTaobaofedArticles() article.List {
 	// STEP 1: Get page amount
 	homePageURL := "https://taobaofed.org/categories/Node-js/"
 	doc, err := goquery.NewDocument(homePageURL)
@@ -39,7 +40,7 @@ func getTaobaofedArticles() articleList {
 	wg.Add(pageAmount)
 
 	// each page at most can contains 10 articles
-	articles := make([]article, 0, pageAmount*10)
+	articles := make(article.List, 0, pageAmount*10)
 	var mutex sync.Mutex
 	for _, url := range urls {
 		go func(url string) {
@@ -60,7 +61,7 @@ func getTaobaofedArticles() articleList {
 				articleRelativeURL, _ := s.Find("a").Attr("href")
 				articleFullURL := fmt.Sprintf("%s%s", articlePrefix, articleRelativeURL)
 
-				a := article{title: title, date: publishDate, author: "掏寶前端團隊", url: articleFullURL}
+				a := article.Article{Title: title, Date: publishDate, Author: "掏寶前端團隊", URL: articleFullURL}
 
 				mutex.Lock()
 				articles = append(articles, a)
@@ -73,14 +74,14 @@ func getTaobaofedArticles() articleList {
 	return articles
 }
 
-func getJerryQuArticles() articleList {
+func getJerryQuArticles() article.List {
 	url := "https://imququ.com/post/series.html"
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		panic(err)
 	}
 
-	articles := make([]article, 0)
+	var articles article.List
 	doc.Find(".entry-content > ul > li").Each(func(_ int, s *goquery.Selection) {
 		link := s.Find("a:not(:last-child)")
 
@@ -95,14 +96,14 @@ func getJerryQuArticles() articleList {
 			panic(err)
 		}
 
-		a := article{title: title, date: publishDate, author: "Jerry Qu", url: urlFullPath}
+		a := article.Article{Title: title, Date: publishDate, Author: "Jerry Qu", URL: urlFullPath}
 		articles = append(articles, a)
 	})
 
 	return articles
 }
 
-func getWuBoyArticles() articleList {
+func getWuBoyArticles() article.List {
 	// STEP 1: Get page amount
 	homePageURL := "https://blog.wu-boy.com/category/電腦技術/"
 	doc, err := goquery.NewDocument(homePageURL)
@@ -133,7 +134,7 @@ func getWuBoyArticles() articleList {
 	wg.Add(pageAmount)
 
 	// each page at most can contains 8 articles
-	articles := make([]article, 0, pageAmount*8)
+	articles := make(article.List, 0, pageAmount*8)
 	var mutex sync.Mutex
 	for _, url := range urls {
 		go func(url string) {
@@ -153,7 +154,7 @@ func getWuBoyArticles() articleList {
 					panic(err)
 				}
 
-				a := article{title: title, date: publishDate, author: "AppleBOY", url: articleURL}
+				a := article.Article{Title: title, Date: publishDate, Author: "AppleBOY", URL: articleURL}
 
 				mutex.Lock()
 				articles = append(articles, a)
