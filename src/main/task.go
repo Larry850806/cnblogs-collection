@@ -10,7 +10,7 @@ import (
 	"github.com/araddon/dateparse"
 )
 
-func getTaobaofedArticles() []article {
+func getTaobaofedArticles() articleList {
 	// STEP 1: Get page amount
 	homePageURL := "https://taobaofed.org/categories/Node-js/"
 	doc, err := goquery.NewDocument(homePageURL)
@@ -73,7 +73,7 @@ func getTaobaofedArticles() []article {
 	return articles
 }
 
-func getJerryQuArticles() []article {
+func getJerryQuArticles() articleList {
 	url := "https://imququ.com/post/series.html"
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
@@ -102,7 +102,7 @@ func getJerryQuArticles() []article {
 	return articles
 }
 
-func getWuBoyArticles() []article {
+func getWuBoyArticles() articleList {
 	// STEP 1: Get page amount
 	homePageURL := "https://blog.wu-boy.com/category/電腦技術/"
 	doc, err := goquery.NewDocument(homePageURL)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 )
 
@@ -11,7 +12,8 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(len(tasks))
 
-	allArticles := make([]article, 0)
+	var allArticles articleList
+
 	var mutex sync.Mutex
 	for _, t := range tasks {
 		go func(t task) {
@@ -24,6 +26,8 @@ func main() {
 	}
 
 	wg.Wait()
+
+	sort.Sort(allArticles)
 
 	for _, article := range allArticles {
 		fmt.Println(article)
