@@ -36,7 +36,3 @@
 [[constraint]]
   branch = "master"
   name = "github.com/araddon/dateparse"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/lib/pq"

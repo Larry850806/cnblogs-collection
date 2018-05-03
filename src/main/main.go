@@ -2,15 +2,10 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"sync"
-
-	"database/sql"
-
-	_ "github.com/lib/pq"
 )
 
-func getAllArticles() []article {
+func main() {
 	tasks := []task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
 
 	var wg sync.WaitGroup
@@ -30,48 +25,7 @@ func getAllArticles() []article {
 
 	wg.Wait()
 
-	fmt.Println(len(allArticles))
-
-	return allArticles
-}
-
-func escape(s string) string {
-	return strings.Replace(s, `'`, `''`, -1)
-}
-
-func main() {
-	// connect to postgresql
-	connStr := "postgres://postgres:dev@localhost/cnblogs?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	fmt.Println(db)
-
-	allArticles := getAllArticles()
-
-	values := make([]string, 0, len(allArticles))
 	for _, article := range allArticles {
-		date := fmt.Sprintf("%d-%d-%d", article.date.Year(), int(article.date.Month()), article.date.Day())
-		str := fmt.Sprintf(`('%s', '%s', '%s', '%s')`, escape(article.title), date, escape(article.url), article.author)
-		values = append(values, str)
+		fmt.Println(article)
 	}
-
-	sqlStatement := fmt.Sprintf(`
-		INSERT INTO article (title, date, url, author)
-		VALUES %s
-	`, strings.Join(values, ",\n"))
-
-	fmt.Println(sqlStatement)
-
-	stmt, err := db.Prepare(sqlStatement)
-	if err != nil {
-		panic(err)
-	}
-	res, err := stmt.Exec()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(res)
 }

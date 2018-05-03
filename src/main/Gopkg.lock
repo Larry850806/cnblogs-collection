@@ -21,15 +21,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/lib/pq"
-  packages = [
-    ".",
-    "oid"
-  ]
-  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "html",
@@ -40,6 +31,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "224832631a5e6e0782183cdb37640da36ce2f9cc218a6998df663443858ef48b"
+  inputs-digest = "0b2358b18a46af752dc935aa1a8fdc252589104f0efeecc3b7627801382edb1e"
   solver-name = "gps-cdcl"
   solver-version = 1
