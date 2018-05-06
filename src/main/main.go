@@ -9,8 +9,7 @@ import (
 )
 
 func main() {
-	// tasks := []task.Task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
-	tasks := []task.Task{getTaobaofedArticles, getJerryQuArticles}
+	tasks := []task.Task{getTaobaofedArticles, getJerryQuArticles, getWuBoyArticles}
 
 	var wg sync.WaitGroup
 	wg.Add(len(tasks))
@@ -23,7 +22,7 @@ func main() {
 			defer wg.Done()
 			articles := t.Run()
 			mutex.Lock()
-			allArticles = append(allArticles, articles...)
+			allArticles = allArticles.Append(articles)
 			mutex.Unlock()
 		}(t)
 	}

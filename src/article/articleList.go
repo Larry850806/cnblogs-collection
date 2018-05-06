@@ -16,3 +16,8 @@ func (al List) Less(i int, j int) bool {
 func (al List) Swap(i int, j int) {
 	al[i], al[j] = al[j], al[i]
 }
+
+// Append returns the merged List
+func (al List) Append(al2 List) List {
+	return append(al, al2...)
+}
